@@ -13,7 +13,7 @@ import java.util.ArrayList;
 
 public class PlayScene extends AGScene {
     // Cria o Array de sprites do placar
-    AGSprite[] placar = new AGSprite[5];
+    AGSprite[] placar = new AGSprite[6];
 
     // Cria o vetor de tiros
     ArrayList<AGSprite> vetorTiros = null;
@@ -28,11 +28,15 @@ public class PlayScene extends AGScene {
     // Cria a variavel para armazenar o cod efeito som
     int efeitoCatraca = 0;
     int efeitoExplosao = 0;
+    int pontuacao = 0;
+    int tempoPontuacao = 0;
 
     // Cria sprites de fundo e do canhao
     AGSprite planoFundo = null;
     AGSprite canhao = null;
     AGSprite barraSuperior = null;
+
+    boolean bPausa = false;
 
     public PlayScene(AGGameManager vrGerente) {
         super(vrGerente);
@@ -70,21 +74,21 @@ public class PlayScene extends AGScene {
 
         // Configura os sprites do placar
         int multiplicador = 1;
-        for (int pos=0; pos < placar.length; pos++) {
+        for (int pos = 0; pos < placar.length; pos++) {
             placar[pos] = createSprite(R.drawable.fonte, 4, 4);
             placar[pos].setScreenPercent(8, 8);
             placar[pos].vrPosition.fY = barraSuperior.vrPosition.fY;
             placar[pos].vrPosition.fX = 20 + multiplicador * placar[pos].getSpriteWidth();
             placar[pos].bAutoRender = false;
             multiplicador++;
-            for (int i=0; i<10; i++) {
+            for (int i = 0; i < 10; i++) {
                 placar[pos].addAnimation(1, false, i);
             }
         }
 
         // Setando tempo de execucao do canhao e da bala
-        tempoCanhao = new AGTimer(10);
-        tempoBala = new AGTimer(100);
+        tempoCanhao = new AGTimer(50);
+        tempoBala = new AGTimer(250);
 
         // Criando efeitos sonoros para movimento do canhao e explosao
         efeitoCatraca = AGSoundManager.vrSoundEffects.loadSoundEffect("toc.wav");
@@ -116,23 +120,54 @@ public class PlayScene extends AGScene {
     }
 
     @Override
-    public void restart() {}
+    public void restart() {
+    }
 
     @Override
-    public void stop() {}
+    public void stop() {
+    }
 
     @Override
     public void loop() {
         if (AGInputManager.vrTouchEvents.backButtonClicked()) {
-            vrGameManager.setCurrentScene(0);
+            //vrGameManager.setCurrentScene(0);
+            bPausa = !bPausa;
             return;
         }
 
+        if (bPausa == false) {
         atualizaMovimentoCanhao();
-        atualizaBalas();
-        criaTiro();
-        atualizaNavios();
-        verificaColisaoBalasNavios();
+            atualizaBalas();
+            criaTiro();
+            atualizaNavios();
+            verificaColisaoBalasNavios();
+            atualizaExplosoes();
+            atualizaPlacar();
+        }
+    }
+
+    // Metodo criado para atualizar quadros do placar
+    private void atualizaPlacar() {
+        if (tempoPontuacao > 0) {
+            for (AGSprite digito : placar) {
+                digito.bVisible = !digito.bVisible;
+            }
+            tempoPontuacao--;
+            pontuacao++;
+        }
+        else {
+            for (AGSprite digito : placar) {
+                digito.bVisible = true;
+            }
+        }
+
+        placar[5].setCurrentAnimation(pontuacao % 10);
+        placar[4].setCurrentAnimation((pontuacao % 100) / 10);
+        placar[3].setCurrentAnimation((pontuacao % 1000) / 100);
+        placar[2].setCurrentAnimation((pontuacao % 10000) / 1000);
+        placar[1].setCurrentAnimation((pontuacao % 100000) / 10000);
+        placar[0].setCurrentAnimation((pontuacao % 1000000) / 100000);
+
     }
 
     // Metodo utilizado para reciclar as explosoes
@@ -172,6 +207,7 @@ public class PlayScene extends AGScene {
             }
             for (AGSprite navio : navios) {
                 if (bala.collide(navio)) {
+                    pontuacao += 50;
                     criaExplosao(navio.vrPosition.fX, navio.vrPosition.fY);
                     bala.bRecycled = true;
                     bala.bVisible = false;
@@ -263,9 +299,12 @@ public class PlayScene extends AGScene {
                     AGSoundManager.vrSoundEffects.play(efeitoCatraca);
                     canhao.vrPosition.setX(canhao.vrPosition.getX() + 10);
                 }
-            } else if (AGInputManager.vrAccelerometer.getAccelX() < -2.0f) {
-                AGSoundManager.vrSoundEffects.play(efeitoCatraca);
-                canhao.vrPosition.setX(canhao.vrPosition.getX() - 10);
+            }
+            else if (AGInputManager.vrAccelerometer.getAccelX() < -2.0f) {
+                if (canhao.vrPosition.getX() > 0 + canhao.getSpriteWidth() / 2) {
+                    AGSoundManager.vrSoundEffects.play(efeitoCatraca);
+                    canhao.vrPosition.setX(canhao.vrPosition.getX() - 10);
+                }
             }
         }
     }
