@@ -207,7 +207,7 @@ public class PlayScene extends AGScene {
             }
             for (AGSprite navio : navios) {
                 if (bala.collide(navio)) {
-                    pontuacao += 50;
+                    tempoPontuacao += 50;
                     criaExplosao(navio.vrPosition.fX, navio.vrPosition.fY);
                     bala.bRecycled = true;
                     bala.bVisible = false;
