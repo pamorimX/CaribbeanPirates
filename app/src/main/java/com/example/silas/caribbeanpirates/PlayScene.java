@@ -22,6 +22,7 @@ public class PlayScene extends AGScene {
 
     // cria a variavel para armazenar o cod efeito som
     int efeitoCatraca = 0;
+    int efeitoExplosao = 0;
 
     AGSprite planoFundo = null;
     AGSprite canhao = null;
@@ -55,6 +56,7 @@ public class PlayScene extends AGScene {
         tempoCanhao = new AGTimer(100);
         tempoBala = new AGTimer(500);
         efeitoCatraca = AGSoundManager.vrSoundEffects.loadSoundEffect("toc.wav");
+        efeitoExplosao = AGSoundManager.vrSoundEffects.loadSoundEffect("explodenavio.wav");
 
         // Carrega os sprites dos navios
         navios[0] = createSprite(R.drawable.navio, 1, 1);
@@ -67,7 +69,7 @@ public class PlayScene extends AGScene {
         navios[1] = createSprite(R.drawable.navio, 1, 1);
         navios[1].setScreenPercent(20, 12);
         navios[1].vrDirection.fX = -1;
-        navios[1].vrDirection.fX = AGScreenManager.iScreenWidth + navios[1].getSpriteWidth() / 2;
+        navios[1].vrPosition.fX = AGScreenManager.iScreenWidth + navios[1].getSpriteWidth() / 2;
         navios[1].vrPosition.fY = navios[0].vrPosition.fY - navios[1].getSpriteHeight();
     }
 
@@ -92,13 +94,42 @@ public class PlayScene extends AGScene {
         atualizaBalas();
         criaTiro();
         atualizaNavios();
+        verificaColisaoBalasNavios();
+    }
+
+    // Metodo que verifica a colisao entre b alas e navios
+    private void verificaColisaoBalasNavios() {
+        for (AGSprite bala : vetorTiros) {
+            if (bala.bRecycled) {
+                continue;
+            }
+            for (AGSprite navio : navios) {
+                if (bala.collide(navio)) {
+                    bala.bRecycled = true;
+                    bala.bVisible = false;
+                    AGSoundManager.vrSoundEffects.play(efeitoExplosao);
+
+                    if (navio.vrDirection.fX == 1) {
+                        navio.vrDirection.fX = -1;
+                        navio.iMirror = AGSprite.NONE;
+                        navio.vrPosition.fX = AGScreenManager.iScreenWidth + navio.getSpriteWidth() / 2;
+                    } else {
+                        navio.vrDirection.fX = 1;
+                        navio.iMirror = AGSprite.HORIZONTAL;
+                        navio.vrPosition.fX = -navio.getSpriteWidth();
+                    }
+                    break;
+                }
+            }
+
+        }
     }
 
     // Metodo que atualiza a posicao dos navios
     private void atualizaNavios() {
         for (AGSprite navio : navios) {
             navio.vrPosition.fX += 5 * navio.vrDirection.fX;
-            if (navio.vrDirection.fX == 0) {
+            if (navio.vrDirection.fX == 1) {
                 if (navio.vrPosition.fX > AGScreenManager.iScreenWidth + navio.getSpriteWidth() / 2) {
                     navio.iMirror = AGSprite.NONE;
                     navio.vrDirection.fX = -1;
