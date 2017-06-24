@@ -14,6 +14,7 @@ import java.util.ArrayList;
 public class PlayScene extends AGScene {
     // Cria o vetor de tiros
     ArrayList<AGSprite> vetorTiros = null;
+    ArrayList<AGSprite> vetorExplosoes = null;
     AGSprite[] navios = new AGSprite[2];
 
     // Cria o tempo para controle movimento canhao
@@ -37,6 +38,7 @@ public class PlayScene extends AGScene {
         createSprite(R.drawable.bala, 1, 1).bVisible = false;
 
         vetorTiros = new ArrayList<AGSprite>();
+        vetorExplosoes = new ArrayList<AGSprite>();
 
         // Seta a cor do fundo
         setSceneBackgroundColor(1, 1, 1);
@@ -97,6 +99,35 @@ public class PlayScene extends AGScene {
         verificaColisaoBalasNavios();
     }
 
+    // Metodo utilizado para reciclar as explosoes
+    private void atualizaExplosoes() {
+        for (AGSprite explosao : vetorExplosoes) {
+            if (explosao.getCurrentAnimation().isAnimationEnded()) {
+                explosao.bRecycled = true;
+            }
+        }
+    }
+
+    // Metodo utilizado para criar uma explosao
+    private void criaExplosao(float x, float y) {
+        for (AGSprite explosao : vetorExplosoes) {
+            if (explosao.bRecycled) {
+                explosao.bRecycled = false;
+                explosao.getCurrentAnimation().restart();
+                explosao.vrPosition.fX = x;
+                explosao.vrPosition.fY = y;
+                return;
+            }
+        }
+
+        AGSprite novaExplosao = createSprite(R.drawable.explosao, 4, 4);
+        novaExplosao.setScreenPercent(20, 12);
+        novaExplosao.addAnimation(10, false, 0, 7);
+        novaExplosao.vrPosition.fX = x;
+        novaExplosao.vrPosition.fY = y;
+        vetorExplosoes.add(novaExplosao);
+    }
+
     // Metodo que verifica a colisao entre b alas e navios
     private void verificaColisaoBalasNavios() {
         for (AGSprite bala : vetorTiros) {
@@ -105,6 +136,7 @@ public class PlayScene extends AGScene {
             }
             for (AGSprite navio : navios) {
                 if (bala.collide(navio)) {
+                    criaExplosao(navio.vrPosition.fX, navio.vrPosition.fY);
                     bala.bRecycled = true;
                     bala.bVisible = false;
                     AGSoundManager.vrSoundEffects.play(efeitoExplosao);
