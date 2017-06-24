@@ -70,15 +70,15 @@ public class PlayScene extends AGScene {
 
         // Configura os sprites do placar
         int multiplicador = 1;
-        for (AGSprite digito : placar) {
-            digito = createSprite(R.drawable.fonte, 4, 4);
-            digito.setScreenPercent(8, 8);
-            digito.vrPosition.fY = barraSuperior.vrPosition.fY;
-            digito.vrPosition.fX = 20 + multiplicador * digito.getSpriteWidth();
-            digito.bAutoRender = false;
+        for (int pos=0; pos < placar.length; pos++) {
+            placar[pos] = createSprite(R.drawable.fonte, 4, 4);
+            placar[pos].setScreenPercent(8, 8);
+            placar[pos].vrPosition.fY = barraSuperior.vrPosition.fY;
+            placar[pos].vrPosition.fX = 20 + multiplicador * placar[pos].getSpriteWidth();
+            placar[pos].bAutoRender = false;
             multiplicador++;
             for (int i=0; i<10; i++) {
-                digito.addAnimation(1, false, i);
+                placar[pos].addAnimation(1, false, i);
             }
         }
 
