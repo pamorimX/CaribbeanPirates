@@ -149,9 +149,9 @@ public class PlayScene extends AGScene {
     // Metodo criado para atualizar quadros do placar
     private void atualizaPlacar() {
         if (tempoPontuacao > 0) {
-            for (AGSprite digito : placar) {
-                digito.bVisible = !digito.bVisible;
-            }
+            //for (AGSprite digito : placar) {
+            //    digito.bVisible = !digito.bVisible;
+            //}
             tempoPontuacao--;
             pontuacao++;
         }
