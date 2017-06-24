@@ -12,21 +12,27 @@ import java.util.ArrayList;
 
 
 public class PlayScene extends AGScene {
+    // Cria o Array de sprites do placar
+    AGSprite[] placar = new AGSprite[5];
+
     // Cria o vetor de tiros
     ArrayList<AGSprite> vetorTiros = null;
     ArrayList<AGSprite> vetorExplosoes = null;
+
     AGSprite[] navios = new AGSprite[2];
 
     // Cria o tempo para controle movimento canhao
     AGTimer tempoCanhao = null;
     AGTimer tempoBala = null;
 
-    // cria a variavel para armazenar o cod efeito som
+    // Cria a variavel para armazenar o cod efeito som
     int efeitoCatraca = 0;
     int efeitoExplosao = 0;
 
+    // Cria sprites de fundo e do canhao
     AGSprite planoFundo = null;
     AGSprite canhao = null;
+    AGSprite barraSuperior = null;
 
     public PlayScene(AGGameManager vrGerente) {
         super(vrGerente);
@@ -36,6 +42,7 @@ public class PlayScene extends AGScene {
     public void init() {
         // Carrega a imagem na memoria
         createSprite(R.drawable.bala, 1, 1).bVisible = false;
+        createSprite(R.drawable.explosao, 4, 2).bVisible = false;
 
         vetorTiros = new ArrayList<AGSprite>();
         vetorExplosoes = new ArrayList<AGSprite>();
@@ -55,8 +62,31 @@ public class PlayScene extends AGScene {
         canhao.vrPosition.setX(AGScreenManager.iScreenWidth / 2);
         canhao.vrPosition.setY(canhao.getSpriteHeight() / 2);
 
-        tempoCanhao = new AGTimer(100);
-        tempoBala = new AGTimer(500);
+        barraSuperior = createSprite(R.drawable.barrasuperior, 1, 1);
+        barraSuperior.setScreenPercent(100, 10);
+        barraSuperior.vrPosition.fX = AGScreenManager.iScreenWidth / 2;
+        barraSuperior.vrPosition.fY = AGScreenManager.iScreenHeight - barraSuperior.getSpriteHeight() / 2;
+        barraSuperior.bAutoRender = false;
+
+        // Configura os sprites do placar
+        int multiplicador = 1;
+        for (AGSprite digito : placar) {
+            digito = createSprite(R.drawable.fonte, 4, 4);
+            digito.setScreenPercent(8, 8);
+            digito.vrPosition.fY = barraSuperior.vrPosition.fY;
+            digito.vrPosition.fX = 20 + multiplicador * digito.getSpriteWidth();
+            digito.bAutoRender = false;
+            multiplicador++;
+            for (int i=0; i<10; i++) {
+                digito.addAnimation(1, false, i);
+            }
+        }
+
+        // Setando tempo de execucao do canhao e da bala
+        tempoCanhao = new AGTimer(10);
+        tempoBala = new AGTimer(100);
+
+        // Criando efeitos sonoros para movimento do canhao e explosao
         efeitoCatraca = AGSoundManager.vrSoundEffects.loadSoundEffect("toc.wav");
         efeitoExplosao = AGSoundManager.vrSoundEffects.loadSoundEffect("explodenavio.wav");
 
@@ -66,7 +96,7 @@ public class PlayScene extends AGScene {
         navios[0].iMirror = AGSprite.HORIZONTAL;
         navios[0].vrDirection.fX = 1;
         navios[0].vrPosition.fX = -navios[0].getSpriteWidth() / 2;
-        navios[0].vrPosition.fY = AGScreenManager.iScreenHeight - navios[0].getSpriteHeight() / 2;
+        navios[0].vrPosition.fY = AGScreenManager.iScreenHeight - navios[0].getSpriteHeight() / 2 - barraSuperior.getSpriteHeight();
 
         navios[1] = createSprite(R.drawable.navio, 1, 1);
         navios[1].setScreenPercent(20, 12);
@@ -75,15 +105,21 @@ public class PlayScene extends AGScene {
         navios[1].vrPosition.fY = navios[0].vrPosition.fY - navios[1].getSpriteHeight();
     }
 
-    @Override
-    public void restart() {
-
+    // Sobrescrita do metodo render da cena
+    // Alterar a ordem de desenho
+    public void render() {
+        super.render();
+        barraSuperior.render();
+        for (AGSprite digito : placar) {
+            digito.render();
+        }
     }
 
     @Override
-    public void stop() {
+    public void restart() {}
 
-    }
+    @Override
+    public void stop() {}
 
     @Override
     public void loop() {
@@ -120,7 +156,7 @@ public class PlayScene extends AGScene {
             }
         }
 
-        AGSprite novaExplosao = createSprite(R.drawable.explosao, 4, 4);
+        AGSprite novaExplosao = createSprite(R.drawable.explosao, 4, 2);
         novaExplosao.setScreenPercent(20, 12);
         novaExplosao.addAnimation(10, false, 0, 7);
         novaExplosao.vrPosition.fX = x;
