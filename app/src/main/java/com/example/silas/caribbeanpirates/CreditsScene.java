@@ -1,7 +1,7 @@
 package com.example.silas.caribbeanpirates;
 
-import com.example.silas.caribbeanpirates.AndGraph.AGScene;
 import com.example.silas.caribbeanpirates.AndGraph.AGGameManager;
+import com.example.silas.caribbeanpirates.AndGraph.AGScene;
 
 
 class CreditsScene extends AGScene {

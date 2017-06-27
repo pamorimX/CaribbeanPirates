@@ -3,7 +3,6 @@ package com.example.silas.caribbeanpirates;
 import android.os.Bundle;
 
 import com.example.silas.caribbeanpirates.AndGraph.AGActivityGame;
-import com.example.silas.caribbeanpirates.AndGraph.AGGameManager;
 
 public class MainActivity extends AGActivityGame {
 

@@ -136,7 +136,7 @@ public class PlayScene extends AGScene {
         }
 
         if (bPausa == false) {
-        atualizaMovimentoCanhao();
+            atualizaMovimentoCanhao();
             atualizaBalas();
             criaTiro();
             atualizaNavios();
@@ -154,8 +154,7 @@ public class PlayScene extends AGScene {
             //}
             tempoPontuacao--;
             pontuacao++;
-        }
-        else {
+        } else {
             for (AGSprite digito : placar) {
                 digito.bVisible = true;
             }
@@ -299,8 +298,7 @@ public class PlayScene extends AGScene {
                     AGSoundManager.vrSoundEffects.play(efeitoCatraca);
                     canhao.vrPosition.setX(canhao.vrPosition.getX() + 10);
                 }
-            }
-            else if (AGInputManager.vrAccelerometer.getAccelX() < -2.0f) {
+            } else if (AGInputManager.vrAccelerometer.getAccelX() < -2.0f) {
                 if (canhao.vrPosition.getX() > 0 + canhao.getSpriteWidth() / 2) {
                     AGSoundManager.vrSoundEffects.play(efeitoCatraca);
                     canhao.vrPosition.setX(canhao.vrPosition.getX() - 10);
